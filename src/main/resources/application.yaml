@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: equipment-asset-management-system
+
+  profiles:
+    active: dev

@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: equipment-postgres
+
+    environment:
+      POSTGRES_DB: equipment_db
+      POSTGRES_USER: hmood
+      POSTGRES_PASSWORD: hmood123
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - equipment_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  equipment_postgres_data:

@@ -1,275 +1,101 @@
 # Equipment & Asset Management System
 
-## Project Overview
+## Project Context
+Spring Boot backend for managing users and company equipment/assets.
 
-This project is an Equipment and Asset Management System built with Spring Boot.
+Before changing code, inspect the current source, migrations, configuration, Git branch, and working tree. The repository is the source of truth when this file and the code differ.
 
-This file documents the current implemented project structure, completed tasks, configuration, development rules, and verified behavior.
-
-Claude must read this file and inspect the existing code before making changes.
-
----
-
-## Technology Stack
-
+## Technology
 - Java 21
-- Spring Boot 4.1.0
-- Maven
-- Spring Web
-- Spring Data JPA
+- Spring Boot with Maven Wrapper
+- Spring Web and Spring Data JPA
 - Jakarta Bean Validation
-- PostgreSQL
-- Flyway
+- PostgreSQL and Flyway
 - Lombok
-- Spring Security Crypto
-- BCrypt
-- JUnit
-- Testcontainers
-- Docker
-- Docker Compose
+- Spring Security Crypto with BCrypt
+- JUnit, Testcontainers, and Docker Compose
 
----
-
-## Build Tool
-
-The project uses Maven through the Maven Wrapper.
-
-Run the application:
-
+## Commands
 ```bash
 ./mvnw spring-boot:run
-```
-
-Run tests:
-
-```bash
 ./mvnw test
-```
-
-Build the project:
-
-```bash
 ./mvnw clean package
+git status
+git diff
 ```
 
-Generated build files are stored inside:
+Project test skill:
 
 ```text
-target/
+.claude/skills/run-test/SKILL.md
 ```
 
-The `target` directory is ignored by Git.
+## Project Layout
+```text
+src/main/java/com/hmood/equipmentassetmanagement/
+├── common/   # Shared code and global error handling
+├── config/   # Application-wide Spring configuration
+├── user/     # User feature
+└── asset/    # Asset feature
 
----
+src/main/resources/
+├── application.yaml
+├── application-dev.yaml
+├── application-test.yaml
+├── application-prod.yaml
+└── db/migration/
 
-## Project Structure
+src/test/java/
+```
 
-Main Java source code:
+Use package-by-feature organization. Feature packages may contain:
 
 ```text
-src/main/java
+controller/
+dto/
+exception/
+model/
+repository/
+service/
+specification/   # Only when needed
 ```
-
-Configuration files:
-
-```text
-src/main/resources
-```
-
-Tests:
-
-```text
-src/test/java
-```
-
-Flyway migrations:
-
-```text
-src/main/resources/db/migration
-```
-
-Docker Compose configuration:
-
-```text
-docker-compose.yaml
-```
-
-The project uses package-by-feature organization with layers inside each feature.
-
-Current implemented structure:
-
-```text
-com.hmood.equipmentassetmanagement/
-├── common/
-│   └── exception/
-│       ├── ApiErrorResponse.java
-│       └── GlobalExceptionHandler.java
-│
-├── config/
-│   └── PasswordConfig.java
-│
-└── user/
-    ├── controller/
-    │   └── UserController.java
-    │
-    ├── dto/
-    │   ├── CreateUserRequest.java
-    │   └── UserResponse.java
-    │
-    ├── exception/
-    │   └── EmailAlreadyExistsException.java
-    │
-    ├── model/
-    │   ├── Role.java
-    │   └── User.java
-    │
-    ├── repository/
-    │   └── UserRepository.java
-    │
-    └── service/
-        └── UserService.java
-```
-
-Shared code used across the application is stored under:
-
-```text
-common/
-```
-
-Application-wide Spring configuration is stored under:
-
-```text
-config/
-```
-
----
 
 ## Architecture
-
-The implemented application flow is:
+Use:
 
 ```text
-Controller
-→ Service
-→ Repository
-→ Entity
-→ Database
+Controller → Service → Repository → Database
 ```
 
-### Controller
+### Controllers
+- Handle HTTP concerns only.
+- Accept request bodies, path variables, and query parameters.
+- Trigger validation with `@Valid` and parameter constraints.
+- Call services; never access repositories directly.
+- Return DTOs through `ResponseEntity`.
+- Do not contain business logic.
 
-Controllers:
-
-- Handle HTTP requests and responses.
-- Read request bodies and query parameters.
-- Trigger Jakarta Validation using `@Valid`.
-- Call service methods.
-- Return HTTP status codes.
-- Do not access repositories directly.
-
-### Service
-
-Services:
-
-- Contain business logic.
-- Normalize incoming data.
-- Check business rules.
-- Hash passwords before storage.
-- Use repositories for database operations.
+### Services
+- Contain business rules and orchestration.
+- Normalize incoming data where required.
+- Use repositories for persistence.
 - Convert entities to response DTOs.
-- Use transactions.
+- Use `@Transactional` for writes.
+- Use `@Transactional(readOnly = true)` for reads.
+- Throw feature-specific exceptions for business failures.
 
-### Repository
+### Persistence and DTOs
+- Use inherited Spring Data methods when available.
+- Use derived queries or specifications for filtering.
+- Keep business logic out of repositories.
+- Keep entities internal to persistence.
+- Use request and response DTOs at API boundaries.
+- DTOs use Java records unless existing code requires otherwise.
+- Never expose passwords, password hashes, or unnecessary relationships.
+- Keep JPA mappings aligned with Flyway migrations.
 
-Repositories:
-
-- Handle database access.
-- Extend Spring Data JPA repositories.
-- Use Spring Data derived query methods.
-
-### Entity
-
-Entities:
-
-- Represent PostgreSQL tables.
-- Use JPA annotations.
-- Match the schema created by Flyway.
-
-### DTO
-
-DTOs:
-
-- Represent API request and response data.
-- Use Java records.
-- Prevent sensitive entity fields from being returned by the API.
-
----
-
-## Spring Profiles
-
-The project contains these Spring profiles:
-
-```text
-dev
-test
-prod
-```
-
-### Development Profile
-
-The `dev` profile connects to PostgreSQL.
-
-The datasource configuration supports:
-
-```text
-DB_URL
-DB_USERNAME
-DB_PASSWORD
-```
-
-Current configuration:
-
-```yaml
-spring:
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/equipment_db}
-    username: ${DB_USERNAME:hmood}
-    password: ${DB_PASSWORD:}
-```
-
-Current local defaults:
-
-```text
-Database: equipment_db
-Host: localhost
-Port: 5432
-Username: hmood
-Password: empty
-```
-
-The local development database has been successfully connected and used.
-
-### Test Profile
-
-Automated tests use Testcontainers.
-
-Testcontainers starts a temporary PostgreSQL database during tests.
-
-The temporary database is independent of the local development database.
-
-### Production Profile
-
-A production profile configuration exists and uses environment variables for configuration.
-
----
-
-## Database Management
-
-PostgreSQL is used as the database.
-
-Flyway is responsible for database schema creation and changes.
-
-Hibernate schema creation is disabled:
+## Database
+PostgreSQL is the application database. Flyway is the only schema-management mechanism.
 
 ```yaml
 spring:
@@ -278,731 +104,91 @@ spring:
       ddl-auto: none
 ```
 
-Flyway migrations are stored in:
+Migrations:
 
 ```text
 src/main/resources/db/migration
-```
-
-Migration naming format:
-
-```text
-V<number>__<description>.sql
-```
-
-Current migration:
-
-```text
 V1__create_users_table.sql
+V2__create_assets_table.sql
 ```
 
-Flyway stores migration execution history inside:
-
-```text
-flyway_schema_history
-```
-
-The local database currently contains:
-
-```text
-users
-flyway_schema_history
-```
-
----
-
-## Task 0 — Project Bootstrap
-
-Task 0 is complete.
-
-Implemented setup:
-
-- Spring Boot project initialization.
-- Java 21.
-- Maven Wrapper.
-- Spring Web.
-- Spring Data JPA.
-- PostgreSQL driver.
-- Flyway.
-- Jakarta Bean Validation.
-- Lombok.
-- JUnit.
-- Testcontainers.
-- Docker Compose.
-- Development, test, and production profiles.
-- Git repository setup.
-- Project documentation through `CLAUDE.md`.
-
----
-
-## Task 1 — User Foundation
-
-Task 1 is implemented on:
-
-```text
-feature/users-foundation
-```
-
----
-
-## User Roles
-
-The implemented roles are:
-
-```text
-MANAGER
-ADMIN
-EMPLOYEE
-IT_SUPPORT
-```
-
-They are defined in:
-
-```text
-user/model/Role.java
-```
-
-Roles are stored in PostgreSQL as strings using:
-
-```java
-@Enumerated(EnumType.STRING)
-```
-
----
-
-## User Entity
-
-The user entity is defined in:
-
-```text
-user/model/User.java
-```
-
-It maps to:
-
-```text
-users
-```
-
-Implemented fields:
-
-```text
-id
-name
-email
-passwordHash
-role
-```
-
-Mappings:
-
-- `id` is the primary key.
-- `id` is generated by PostgreSQL.
-- `name` is required.
-- `email` is required and unique.
-- `passwordHash` maps to the `password_hash` database column.
-- `role` is required and stored as a string.
-
-The entity uses Lombok:
-
-```text
-@Getter
-@Setter
-@NoArgsConstructor
-```
-
----
-
-## User Database Migration
-
-The migration:
-
-```text
-V1__create_users_table.sql
-```
-
-creates the `users` table.
-
-Implemented columns:
-
-```text
-id BIGINT
-name VARCHAR(100)
-email VARCHAR(255)
-password_hash VARCHAR(255)
-role VARCHAR(30)
-```
-
-Implemented constraints:
-
-- Primary key on `id`.
-- Generated identity value for `id`.
-- Required name.
-- Required and unique email.
-- Required password hash.
-- Required role.
-- Check constraint for the four supported roles.
-
-The migration was successfully executed on:
-
-- The local PostgreSQL database.
-- The temporary PostgreSQL Testcontainer database.
-
----
-
-## Create User Request
-
-The request DTO is:
-
-```text
-CreateUserRequest
-```
-
-Implemented fields:
-
-```text
-name
-email
-password
-role
-```
-
-Implemented validation:
-
-```text
-name
-→ required
-→ maximum 100 characters
-```
-
-```text
-email
-→ required
-→ valid email format
-→ maximum 255 characters
-```
-
-```text
-password
-→ required
-→ between 8 and 72 characters
-```
-
-```text
-role
-→ required
-```
-
-Validation is triggered using:
-
-```java
-@Valid
-```
-
-inside `UserController`.
-
----
-
-## User Response
-
-The response DTO is:
-
-```text
-UserResponse
-```
-
-Implemented fields:
-
-```text
-id
-name
-email
-role
-```
-
-The response does not contain:
-
-```text
-password
-passwordHash
-```
-
----
-
-## User Repository
-
-The repository is:
-
-```text
-UserRepository
-```
-
-It extends:
-
-```java
-JpaRepository<User, Long>
-```
-
-Implemented derived query methods:
-
-```java
-boolean existsByEmailIgnoreCase(String email);
-```
-
-```java
-List<User> findAllByRole(Role role);
-```
-
-Inherited repository methods used by the project include:
-
-```text
-save
-```
-
----
-
-## User Service
-
-The service is:
-
-```text
-UserService
-```
-
-Implemented methods:
-
-```java
-createUser(CreateUserRequest request)
-```
-
-```java
-getUsersByRole(Role role)
-```
-
-### Create User Logic
-
-The implemented create-user flow is:
-
-```text
-Receive CreateUserRequest
-→ Trim the name
-→ Trim the email
-→ Convert the email to lowercase
-→ Check whether the email already exists
-→ Hash the password
-→ Create the User entity
-→ Save the user
-→ Return UserResponse
-```
-
-Email normalization uses:
-
-```java
-trim()
-```
-
-and:
-
-```java
-toLowerCase(Locale.ROOT)
-```
-
-Duplicate email checking uses:
-
-```java
-existsByEmailIgnoreCase(...)
-```
-
-The create operation uses:
-
-```java
-@Transactional
-```
-
-### Get Users by Role Logic
-
-The service:
-
-- Reads users using `findAllByRole`.
-- Converts every `User` entity into `UserResponse`.
-- Returns `List<UserResponse>`.
-- Does not expose password hashes.
-
-The read operation uses:
-
-```java
-@Transactional(readOnly = true)
-```
-
----
-
-## Password Hashing
-
-Password hashing configuration is located in:
-
-```text
-config/PasswordConfig.java
-```
-
-It creates a Spring Bean of type:
-
-```java
-PasswordEncoder
-```
-
-The implementation is:
-
-```java
-BCryptPasswordEncoder
-```
-
-The dependency added to `pom.xml` is:
-
-```xml
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-crypto</artifactId>
-</dependency>
-```
-
-Passwords are hashed before being stored.
-
-The raw password is not saved in the `users` table.
-
----
-
-## User Controller
-
-The controller is:
-
-```text
-UserController
-```
-
-Base path:
-
-```text
-/api/users
-```
-
-The controller uses constructor injection through:
-
-```java
-@RequiredArgsConstructor
-```
-
-The controller calls `UserService` and does not access `UserRepository` directly.
-
----
-
-## Implemented API Endpoints
-
-### Create User
-
+Rules:
+
+- Never edit an applied migration to change the schema.
+- Add a new numbered migration for each schema change.
+- Keep constraints, indexes, foreign keys, enums, and entities consistent.
+- Use `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`.
+- Never commit real credentials.
+
+## Domain Rules
+### Users
+- Roles: `MANAGER`, `ADMIN`, `EMPLOYEE`, `IT_SUPPORT`.
+- Trim and lowercase email addresses.
+- Enforce case-insensitive email uniqueness.
+- Hash passwords with BCrypt.
+- Never return raw passwords or password hashes.
+
+### Assets
+- Statuses: `AVAILABLE`, `ASSIGNED`, `UNDER_MAINTENANCE`, `DAMAGED`.
+- Trim and uppercase serial numbers during creation.
+- Serial numbers are unique and immutable after creation.
+- Generic updates may change only name, category, and purchase date.
+- Do not change status or current user through the generic update endpoint.
+- List queries support search, filtering, pagination, and deterministic sorting.
+- Block deletion when an asset is `ASSIGNED` or `UNDER_MAINTENANCE`.
+- After maintenance is implemented, also block deletion when an open maintenance request exists.
+
+## Implemented API
 ```http
 POST /api/users
+GET /api/users?role={role}
+
+POST /api/assets
+GET /api/assets
+GET /api/assets/{id}
+PUT /api/assets/{id}
+DELETE /api/assets/{id}
 ```
 
-Example request:
+Response conventions:
 
-```json
-{
-  "name": "Mohammad Abu Omar",
-  "email": "hmood@example.com",
-  "password": "12345678",
-  "role": "ADMIN"
-}
-```
-
-Successful status:
-
-```text
-201 Created
-```
-
-Example response:
-
-```json
-{
-  "id": 1,
-  "name": "Mohammad Abu Omar",
-  "email": "hmood@example.com",
-  "role": "ADMIN"
-}
-```
-
-This endpoint was tested successfully using Postman.
-
----
-
-### Get Users by Role
-
-```http
-GET /api/users?role=ADMIN
-```
-
-Successful status:
-
-```text
-200 OK
-```
-
-Example response:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Mohammad Abu Omar",
-    "email": "hmood@example.com",
-    "role": "ADMIN"
-  }
-]
-```
-
-This endpoint was tested successfully using Postman.
-
----
+- `201 Created`: successful creation.
+- `200 OK`: successful reads and updates.
+- `204 No Content`: successful deletion.
+- `400 Bad Request`: invalid input or query parameters.
+- `404 Not Found`: missing resource.
+- `409 Conflict`: duplicate value or blocked business operation.
 
 ## Error Handling
-
-Shared error handling is implemented under:
-
-```text
-common/exception
-```
-
-Implemented shared classes:
-
-```text
-ApiErrorResponse
-GlobalExceptionHandler
-```
-
-The feature-specific duplicate email exception is:
-
-```text
-user/exception/EmailAlreadyExistsException.java
-```
-
-### API Error Response
-
-`ApiErrorResponse` contains:
-
-```text
-timestamp
-status
-error
-message
-path
-fieldErrors
-```
-
-### Duplicate Email
-
-`UserService` throws:
-
-```text
-EmailAlreadyExistsException
-```
-
-when the email already exists.
-
-`GlobalExceptionHandler` handles this exception and creates:
-
-```text
-409 Conflict
-```
-
-with the message:
-
-```text
-Email already exists
-```
-
-### Validation Errors
-
-`GlobalExceptionHandler` handles:
-
-```text
-MethodArgumentNotValidException
-```
-
-and returns:
-
-```text
-400 Bad Request
-```
-
-Validation errors are returned inside:
-
-```text
-fieldErrors
-```
-
-### Invalid Role Query Parameter
-
-`GlobalExceptionHandler` handles:
-
-```text
-MethodArgumentTypeMismatchException
-```
-
-and returns:
-
-```text
-400 Bad Request
-```
-
-for invalid values such as:
-
-```http
-GET /api/users?role=BOSS
-```
-
----
-
-## Testing
-
-Tests are run using:
-
-```bash
-./mvnw test
-```
-
-The latest automated test result is:
-
-```text
-Tests run: 1
-Failures: 0
-Errors: 0
-Skipped: 0
-BUILD SUCCESS
-```
-
-The automated test successfully verified:
-
-- Spring Boot application context starts.
-- Spring Beans are created.
-- `UserRepository` is detected.
-- Testcontainers connects to Docker.
-- A temporary PostgreSQL container starts.
-- Flyway validates one migration.
-- Flyway executes `V1__create_users_table.sql`.
-- The `users` table migration succeeds.
-- Hibernate initializes.
-- JPA initializes.
-- All current Task 1 Java classes compile successfully.
-
-Manual Postman testing successfully verified:
-
-```text
-POST /api/users
-→ 201 Created
-```
-
-```text
-GET /api/users?role=ADMIN
-→ 200 OK
-```
-
----
-
-## Security Rules Already Applied
-
-- Raw passwords are not stored.
-- Passwords are hashed using BCrypt.
-- Password hashes are not returned in API responses.
-- Database password configuration supports environment variables.
-- The current committed datasource configuration does not contain a real password.
-- `.env` is ignored by Git.
-- `target/` is ignored by Git.
-- `.idea/` is ignored by Git.
-- `.DS_Store` is ignored by Git.
-
----
-
-## Coding Rules
-
-- Use package-by-feature organization.
-- Use `Controller → Service → Repository`.
-- Keep HTTP handling inside controllers.
-- Keep business logic inside services.
-- Keep database access inside repositories.
-- Use constructor injection.
-- Use `final` dependencies.
-- Use DTOs for API requests and responses.
-- Do not return password hashes.
-- Use Jakarta Validation for incoming requests.
-- Use Flyway for schema creation and changes.
-- Do not let Hibernate create database tables.
-- Use transactions in service methods.
-- Use shared global exception handling.
-- Keep feature-specific exceptions inside their feature.
-- Keep shared exception handling inside `common.exception`.
-- Do not commit secrets or generated files.
-
----
-
-## Git Workflow
-
-Task 1 is currently being developed on:
-
-```text
-feature/users-foundation
-```
-
-Commands used to review changes:
-
-```bash
-git status
-```
-
-```bash
-git diff
-```
-
-```bash
-git diff --check
-```
-
-Tests are run before committing:
-
-```bash
-./mvnw test
-```
-
-After staging, review using:
-
-```bash
-git status
-```
-
-and:
-
-```bash
-git diff --cached --check
-```
-
-Suggested commit message:
-
-```text
-feat: implement user foundation
-```
-
----
+- Shared response: `common.exception.ApiErrorResponse`.
+- Shared handler: `common.exception.GlobalExceptionHandler`.
+- Keep feature exceptions inside their feature package.
+- Preserve the existing structured error response.
+- Map validation failures to `400`, missing resources to `404`, and conflicts to `409`.
+- Do not expose stack traces or internal details.
+
+## Workflow
+Before changing code:
+
+1. Run `git status` and confirm the branch.
+2. Inspect related source files, tests, migrations, and conventions.
+3. Make the smallest change that satisfies the task.
+
+After changing code:
+
+1. Review `git diff`.
+2. Run `./mvnw test`.
+3. Fix failures caused by the change.
+4. Confirm `git status`.
+5. Do not commit, merge, or push unless explicitly asked.
 
 ## Instructions for Claude
-
-Claude must:
-
-1. Read this file before changing the project.
-2. Inspect the existing source code.
-3. Inspect the current Git branch.
-4. Follow the existing package-by-feature structure.
-5. Follow `Controller → Service → Repository`.
-6. Use DTOs at API boundaries.
-7. Use Flyway for database schema changes.
-8. Avoid changing unrelated code.
-9. Run tests after making changes.
-10. Update this file when implemented project behavior or architecture changes.
+- Preserve existing behavior unless the task requires changing it.
+- Do not modify unrelated files.
+- Do not invent classes, endpoints, tables, or completed behavior.
+- Prefer existing project patterns over new abstractions.
+- Add tests for meaningful business logic and regressions when practical.
+- Explain important architecture or business-rule changes clearly.
+- Ask before destructive database or Git operations.
+- Update this file only when persistent commands, architecture, domain rules, or project-wide conventions change.
+- Do not use this file as a task log, changelog, or temporary branch record.

@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+
 @Service
 @RequiredArgsConstructor
 public class AssetService {
@@ -48,19 +51,30 @@ public class AssetService {
     }
 
     @Transactional(readOnly = true)
-    public AssetResponse getAssetById(Long id) {
+    public AssetResponse getAssetById(Long id, Authentication authentication) {
 
-        Optional<Asset> optionalAsset = assetRepository.findById(id);
+        Asset asset = assetRepository.findById(id)
+                .orElseThrow(() -> new AssetNotFoundException(id));
 
-        if (optionalAsset.isEmpty()) {
-            throw new AssetNotFoundException(id);
+        boolean isEmployee = authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_EMPLOYEE"));
+
+        if (isEmployee) {
+
+            boolean assetIsAssignedToEmployee =
+                    asset.getCurrentUser() != null
+                            && asset.getCurrentUser()
+                            .getEmail()
+                            .equalsIgnoreCase(authentication.getName());
+
+            if (!assetIsAssignedToEmployee) {
+                throw new AccessDeniedException(
+                        "You are not allowed to access this asset"
+                );
+            }
         }
-
-        Asset asset = optionalAsset.get();
-
-        //  by. Lambda :
-        // Asset asset = assetRepository.findById(id)
-        //         .orElseThrow(() -> new AssetNotFoundException(id));
 
         return toResponse(asset);
     }

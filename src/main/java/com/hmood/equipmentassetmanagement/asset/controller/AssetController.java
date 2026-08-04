@@ -16,7 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/assets")
@@ -25,6 +28,8 @@ public class AssetController {
 
     private final AssetService assetService;
 
+
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<AssetResponse> createAsset(@Valid @RequestBody CreateAssetRequest request) {
 
@@ -33,6 +38,7 @@ public class AssetController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'IT_SUPPORT')")
     @GetMapping
     public ResponseEntity<PagedModel<AssetResponse>> getAssets(@RequestParam(required = false) String search, @RequestParam(required = false) AssetStatus status, @RequestParam(required = false) String category,
 
@@ -49,14 +55,16 @@ public class AssetController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'IT_SUPPORT', 'EMPLOYEE')")
     @GetMapping("/{id}")
-    public ResponseEntity<AssetResponse> getAssetById(@PathVariable Long id) {
+    public ResponseEntity<AssetResponse> getAssetById(@PathVariable Long id, Authentication authentication) {
 
-        AssetResponse assetResponse = assetService.getAssetById(id);
+        AssetResponse assetResponse = assetService.getAssetById(id, authentication);
 
         return ResponseEntity.ok(assetResponse);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AssetResponse> updateAsset(@PathVariable Long id, @Valid @RequestBody UpdateAssetRequest request) {
 
@@ -64,6 +72,8 @@ public class AssetController {
 
         return ResponseEntity.ok(assetResponse);
     }
+
+    @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset(@PathVariable Long id) {
 

@@ -6,7 +6,7 @@ Spring Boot backend for managing users and company equipment/assets.
 Before changing code, inspect the current source, migrations, configuration, Git branch, and working tree. The repository is the source of truth when this file and the code differ.
 
 ## Technology
-- Java 21
+- Java 26
 - Spring Boot with Maven Wrapper
 - Spring Web and Spring Data JPA
 - Jakarta Bean Validation

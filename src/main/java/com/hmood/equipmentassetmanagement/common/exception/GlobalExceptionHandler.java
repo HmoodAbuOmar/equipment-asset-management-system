@@ -3,7 +3,10 @@ package com.hmood.equipmentassetmanagement.common.exception;
 import com.hmood.equipmentassetmanagement.asset.exception.AssetDeletionNotAllowedException;
 import com.hmood.equipmentassetmanagement.asset.exception.AssetNotFoundException;
 import com.hmood.equipmentassetmanagement.asset.exception.SerialNumberAlreadyExistsException;
+import com.hmood.equipmentassetmanagement.assignment.exception.AssignmentNotAllowedException;
+import com.hmood.equipmentassetmanagement.assignment.exception.AssignmentNotFoundException;
 import com.hmood.equipmentassetmanagement.user.exception.EmailAlreadyExistsException;
+import com.hmood.equipmentassetmanagement.user.exception.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDateTime;
@@ -119,5 +122,64 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserNotFound(
+            UserNotFoundException exception,
+            HttpServletRequest request
+    ) {
+
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI(),
+                Map.of()
+        );
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(AssignmentNotAllowedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAssignmentNotAllowed(
+            AssignmentNotAllowedException exception,
+            HttpServletRequest request
+    ) {
+
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI(),
+                Map.of()
+        );
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(AssignmentNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleAssignmentNotFound(
+            AssignmentNotFoundException exception,
+            HttpServletRequest request
+    ) {
+
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI(),
+                Map.of()
+        );
+
+        return ResponseEntity.status(status).body(response);
     }
 }

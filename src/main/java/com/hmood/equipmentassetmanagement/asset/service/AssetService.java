@@ -6,6 +6,7 @@ import com.hmood.equipmentassetmanagement.asset.dto.UpdateAssetRequest;
 import com.hmood.equipmentassetmanagement.asset.exception.AssetDeletionNotAllowedException;
 import com.hmood.equipmentassetmanagement.asset.exception.AssetNotFoundException;
 import com.hmood.equipmentassetmanagement.asset.exception.SerialNumberAlreadyExistsException;
+import com.hmood.equipmentassetmanagement.asset.mapper.AssetMapper;
 import com.hmood.equipmentassetmanagement.asset.model.Asset;
 import com.hmood.equipmentassetmanagement.asset.model.AssetStatus;
 import com.hmood.equipmentassetmanagement.asset.repository.AssetRepository;
@@ -28,7 +29,7 @@ import org.springframework.security.core.Authentication;
 public class AssetService {
 
     private final AssetRepository assetRepository;  // == public AssetService(AssetRepository assetRepository) {this.assetRepository = assetRepository} // Lombok generates the constructor because of @RequiredArgsConstructor
-
+    private final AssetMapper assetMapper;
 
     @Transactional
     public AssetResponse createAsset(CreateAssetRequest request) {
@@ -47,7 +48,7 @@ public class AssetService {
 
         Asset savedAsset = assetRepository.save(asset);
 
-        return toResponse(savedAsset);
+        return assetMapper.toResponse(savedAsset);
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +77,7 @@ public class AssetService {
             }
         }
 
-        return toResponse(asset);
+        return assetMapper.toResponse(asset);
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +87,7 @@ public class AssetService {
 
         Page<Asset> assetPage = assetRepository.findAll(specification, pageable);
 
-        return assetPage.map(this::toResponse);
+        return assetPage.map(assetMapper::toResponse);
     }
 
     @Transactional
@@ -106,7 +107,7 @@ public class AssetService {
 
         Asset updatedAsset = assetRepository.save(asset);
 
-        return toResponse(updatedAsset);
+        return assetMapper.toResponse(updatedAsset);
     }
 
     @Transactional
@@ -135,7 +136,4 @@ public class AssetService {
         assetRepository.delete(asset);
     }
 
-    private AssetResponse toResponse(Asset asset) {
-        return new AssetResponse(asset.getId(), asset.getName(), asset.getCategory(), asset.getSerialNumber(), asset.getStatus(), asset.getPurchaseDate(), asset.getCurrentUser() == null ? null : asset.getCurrentUser().getId());
-    }
 }

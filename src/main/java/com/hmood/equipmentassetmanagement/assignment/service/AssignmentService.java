@@ -27,6 +27,8 @@ import com.hmood.equipmentassetmanagement.asset.dto.AssetResponse;
 import com.hmood.equipmentassetmanagement.asset.mapper.AssetMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import com.hmood.equipmentassetmanagement.assetHistory.model.AssetHistoryActionType;
+import com.hmood.equipmentassetmanagement.assetHistory.service.AssetHistoryService;
 
 @Service
 @RequiredArgsConstructor
@@ -37,10 +39,14 @@ public class AssignmentService {
     private final UserRepository userRepository;
     private final AssignmentMapper assignmentMapper;
     private final AssetMapper assetMapper;
+    private final AssetHistoryService assetHistoryService;
 
     @Transactional
-    public AssignmentResponse createAssignment(CreateAssignmentRequest request) {
+    public AssignmentResponse createAssignment(CreateAssignmentRequest request, Authentication authentication) {
 
+        String email = authentication.getName().trim().toLowerCase();
+
+        User currentUser = userRepository.findByEmailIgnoreCase(email).orElseThrow();
         Asset asset = assetRepository.findById(request.assetId()).orElseThrow(() -> new AssetNotFoundException(request.assetId()));
 
         User user = userRepository.findById(request.userId()).orElseThrow(() -> new UserNotFoundException(request.userId()));
@@ -70,12 +76,17 @@ public class AssignmentService {
 
         Assignment savedAssignment = assignmentRepository.saveAndFlush(assignment);
 
+        assetHistoryService.log(asset, currentUser, AssetHistoryActionType.ASSIGNED, "Asset assigned to user " + user.getId());
+
         return assignmentMapper.toResponse(savedAssignment);
     }
 
     @Transactional
-    public AssignmentResponse returnAssignment(Long id) {
+    public AssignmentResponse returnAssignment(Long id, Authentication authentication) {
 
+        String email = authentication.getName().trim().toLowerCase();
+
+        User currentUser = userRepository.findByEmailIgnoreCase(email).orElseThrow();
         Assignment assignment = assignmentRepository.findByIdAndReturnedAtIsNull(id).orElseThrow(() -> new AssignmentNotFoundException(id));
 
         Asset asset = assignment.getAsset();
@@ -86,6 +97,8 @@ public class AssignmentService {
         asset.setCurrentUser(null);
 
         Assignment savedAssignment = assignmentRepository.saveAndFlush(assignment);
+
+        assetHistoryService.log(asset, currentUser, AssetHistoryActionType.RETURNED, "Asset returned");
 
         return assignmentMapper.toResponse(savedAssignment);
     }
@@ -101,15 +114,13 @@ public class AssignmentService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
-        boolean isEmployee = authentication.getAuthorities().stream().
-                anyMatch(authority -> authority.getAuthority().equals("ROLE_EMPLOYEE"));
+        boolean isEmployee = authentication.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_EMPLOYEE"));
 
         if (isEmployee && !user.getEmail().equalsIgnoreCase(authentication.getName())) {
 
             throw new AccessDeniedException("Employees can only access their own assets");
         }
 
-        return assignmentRepository.findAllByUser_IdAndReturnedAtIsNull(userId, pageable)
-                .map(assignment -> assetMapper.toResponse(assignment.getAsset()));
+        return assignmentRepository.findAllByUser_IdAndReturnedAtIsNull(userId, pageable).map(assignment -> assetMapper.toResponse(assignment.getAsset()));
     }
 }

@@ -11,6 +11,10 @@ import com.hmood.equipmentassetmanagement.asset.model.Asset;
 import com.hmood.equipmentassetmanagement.asset.model.AssetStatus;
 import com.hmood.equipmentassetmanagement.asset.repository.AssetRepository;
 import com.hmood.equipmentassetmanagement.asset.specification.AssetSpecifications;
+import com.hmood.equipmentassetmanagement.assetHistory.model.AssetHistoryActionType;
+import com.hmood.equipmentassetmanagement.assetHistory.service.AssetHistoryService;
+import com.hmood.equipmentassetmanagement.user.model.User;
+import com.hmood.equipmentassetmanagement.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +34,14 @@ public class AssetService {
 
     private final AssetRepository assetRepository;  // == public AssetService(AssetRepository assetRepository) {this.assetRepository = assetRepository} // Lombok generates the constructor because of @RequiredArgsConstructor
     private final AssetMapper assetMapper;
+    private final UserRepository userRepository;
+    private final AssetHistoryService assetHistoryService;
 
     @Transactional
-    public AssetResponse createAsset(CreateAssetRequest request) {
+    public AssetResponse createAsset(CreateAssetRequest request, Authentication authentication) {
 
+        String email = authentication.getName().trim().toLowerCase();
+        User currentUser = userRepository.findByEmailIgnoreCase(email).orElseThrow();
         String normalizedSerialNumber = request.serialNumber().trim().toUpperCase(Locale.ROOT);
 
         if (assetRepository.existsBySerialNumberIgnoreCase(normalizedSerialNumber)) {
@@ -48,32 +56,23 @@ public class AssetService {
 
         Asset savedAsset = assetRepository.save(asset);
 
+        assetHistoryService.log(savedAsset, currentUser, AssetHistoryActionType.CREATED, "Asset created");
         return assetMapper.toResponse(savedAsset);
     }
 
     @Transactional(readOnly = true)
     public AssetResponse getAssetById(Long id, Authentication authentication) {
 
-        Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new AssetNotFoundException(id));
+        Asset asset = assetRepository.findById(id).orElseThrow(() -> new AssetNotFoundException(id));
 
-        boolean isEmployee = authentication.getAuthorities()
-                .stream()
-                .anyMatch(authority ->
-                        authority.getAuthority().equals("ROLE_EMPLOYEE"));
+        boolean isEmployee = authentication.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_EMPLOYEE"));
 
         if (isEmployee) {
 
-            boolean assetIsAssignedToEmployee =
-                    asset.getCurrentUser() != null
-                            && asset.getCurrentUser()
-                            .getEmail()
-                            .equalsIgnoreCase(authentication.getName());
+            boolean assetIsAssignedToEmployee = asset.getCurrentUser() != null && asset.getCurrentUser().getEmail().equalsIgnoreCase(authentication.getName());
 
             if (!assetIsAssignedToEmployee) {
-                throw new AccessDeniedException(
-                        "You are not allowed to access this asset"
-                );
+                throw new AccessDeniedException("You are not allowed to access this asset");
             }
         }
 
@@ -91,7 +90,11 @@ public class AssetService {
     }
 
     @Transactional
-    public AssetResponse updateAsset(Long id, UpdateAssetRequest request) {
+    public AssetResponse updateAsset(Long id, UpdateAssetRequest request, Authentication authentication) {
+
+        String email = authentication.getName().trim().toLowerCase();
+
+        User currentUser = userRepository.findByEmailIgnoreCase(email).orElseThrow();
 
         Optional<Asset> optionalAsset = assetRepository.findById(id);
 
@@ -106,6 +109,8 @@ public class AssetService {
         asset.setPurchaseDate(request.purchaseDate());
 
         Asset updatedAsset = assetRepository.save(asset);
+
+        assetHistoryService.log(updatedAsset, currentUser, AssetHistoryActionType.UPDATED, "Asset updated");
 
         return assetMapper.toResponse(updatedAsset);
     }
@@ -122,15 +127,11 @@ public class AssetService {
         Asset asset = optionalAsset.get();
 
         if (asset.getStatus() == AssetStatus.ASSIGNED) {
-            throw new AssetDeletionNotAllowedException(
-                    "Assigned asset cannot be deleted"
-            );
+            throw new AssetDeletionNotAllowedException("Assigned asset cannot be deleted");
         }
 
         if (asset.getStatus() == AssetStatus.UNDER_MAINTENANCE) {
-            throw new AssetDeletionNotAllowedException(
-                    "Asset under maintenance cannot be deleted"
-            );
+            throw new AssetDeletionNotAllowedException("Asset under maintenance cannot be deleted");
         }
 
         assetRepository.delete(asset);

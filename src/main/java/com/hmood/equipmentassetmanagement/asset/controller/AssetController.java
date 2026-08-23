@@ -31,16 +31,18 @@ public class AssetController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
-    public ResponseEntity<AssetResponse> createAsset(@Valid @RequestBody CreateAssetRequest request) {
+    public ResponseEntity<AssetResponse> createAsset(@Valid @RequestBody CreateAssetRequest request, Authentication authentication) {
 
-        AssetResponse response = assetService.createAsset(request);
+        AssetResponse response = assetService.createAsset(request, authentication);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'IT_SUPPORT')")
     @GetMapping
-    public ResponseEntity<PagedModel<AssetResponse>> getAssets(@RequestParam(required = false) String search, @RequestParam(required = false) AssetStatus status, @RequestParam(required = false) String category,
+    public ResponseEntity<PagedModel<AssetResponse>> getAssets(@RequestParam(required = false) String search, @RequestParam(required = false) AssetStatus status,
+
+                                                               @RequestParam(required = false) String category,
 
                                                                @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page must be 0 or greater") int page,
 
@@ -66,9 +68,9 @@ public class AssetController {
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AssetResponse> updateAsset(@PathVariable Long id, @Valid @RequestBody UpdateAssetRequest request) {
+    public ResponseEntity<AssetResponse> updateAsset(@PathVariable Long id, @Valid @RequestBody UpdateAssetRequest request, Authentication authentication) {
 
-        AssetResponse assetResponse = assetService.updateAsset(id, request);
+        AssetResponse assetResponse = assetService.updateAsset(id, request,authentication);
 
         return ResponseEntity.ok(assetResponse);
     }

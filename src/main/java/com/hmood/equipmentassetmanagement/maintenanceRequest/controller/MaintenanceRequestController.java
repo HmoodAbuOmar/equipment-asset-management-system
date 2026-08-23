@@ -37,9 +37,9 @@ public class MaintenanceRequestController {
 
     @PreAuthorize("hasRole('IT_SUPPORT')")
     @PutMapping("/{id}/resolve")
-    public MaintenanceRequestResponse resolveMaintenanceRequest(@PathVariable Long id, @RequestBody ResolveMaintenanceRequest request) {
+    public MaintenanceRequestResponse resolveMaintenanceRequest(@PathVariable Long id, @RequestBody ResolveMaintenanceRequest request,Authentication authentication) {
 
-        return maintenanceRequestService.resolveMaintenanceRequest(id, request);
+        return maintenanceRequestService.resolveMaintenanceRequest(id, request,authentication);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'IT_SUPPORT')")

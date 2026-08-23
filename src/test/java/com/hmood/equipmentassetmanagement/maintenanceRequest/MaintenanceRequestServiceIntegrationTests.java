@@ -41,6 +41,7 @@ class MaintenanceRequestServiceIntegrationTests {
     @Autowired
     private UserRepository userRepository;
 
+
     @Test
     void maintenanceRequestCompletesFullLifecycle() {
 
@@ -91,6 +92,7 @@ class MaintenanceRequestServiceIntegrationTests {
                 );
 
         assertThat(createdRequest.id()).isNotNull();
+
         assertThat(createdRequest.status())
                 .isEqualTo(MaintenanceStatus.OPEN);
 
@@ -116,7 +118,8 @@ class MaintenanceRequestServiceIntegrationTests {
         MaintenanceRequestResponse resolvedRequest =
                 maintenanceRequestService.resolveMaintenanceRequest(
                         createdRequest.id(),
-                        new ResolveMaintenanceRequest(false)
+                        new ResolveMaintenanceRequest(false),
+                        itAuthentication
                 );
 
         assertThat(resolvedRequest.status())
@@ -133,6 +136,7 @@ class MaintenanceRequestServiceIntegrationTests {
                 .isEqualTo(1);
     }
 
+
     @Test
     void resolveOpenMaintenanceRequestThrowsException() {
 
@@ -143,6 +147,14 @@ class MaintenanceRequestServiceIntegrationTests {
         employee.setRole(Role.EMPLOYEE);
 
         User savedEmployee = userRepository.saveAndFlush(employee);
+
+        User itSupport = new User();
+        itSupport.setName("Invalid Transition IT");
+        itSupport.setEmail("invalid.transition.it@example.com");
+        itSupport.setPasswordHash("test-password-hash");
+        itSupport.setRole(Role.IT_SUPPORT);
+
+        User savedItSupport = userRepository.saveAndFlush(itSupport);
 
         Asset asset = new Asset();
         asset.setName("Invalid Transition Laptop");
@@ -156,6 +168,12 @@ class MaintenanceRequestServiceIntegrationTests {
         Authentication employeeAuthentication =
                 new UsernamePasswordAuthenticationToken(
                         savedEmployee.getEmail(),
+                        null
+                );
+
+        Authentication itAuthentication =
+                new UsernamePasswordAuthenticationToken(
+                        savedItSupport.getEmail(),
                         null
                 );
 
@@ -174,7 +192,8 @@ class MaintenanceRequestServiceIntegrationTests {
         assertThatThrownBy(
                 () -> maintenanceRequestService.resolveMaintenanceRequest(
                         createdRequest.id(),
-                        new ResolveMaintenanceRequest(false)
+                        new ResolveMaintenanceRequest(false),
+                        itAuthentication
                 )
         )
                 .isInstanceOf(IllegalStateException.class)

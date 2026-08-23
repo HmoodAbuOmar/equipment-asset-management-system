@@ -18,12 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
@@ -42,8 +45,12 @@ class AssignmentServiceIntegrationTests {
     @Autowired
     private UserRepository userRepository;
 
+
     @Test
     void createAssignmentAssignsAvailableAssetToEmployee() {
+
+        Authentication authentication =
+                createManagerAuthentication("assignment.actor.001@example.com");
 
         User employee = new User();
         employee.setName("Assignment Test Employee");
@@ -68,7 +75,10 @@ class AssignmentServiceIntegrationTests {
                 );
 
         AssignmentResponse response =
-                assignmentService.createAssignment(request);
+                assignmentService.createAssignment(
+                        request,
+                        authentication
+                );
 
         assertThat(response.id()).isNotNull();
         assertThat(response.assetId()).isEqualTo(savedAsset.getId());
@@ -91,8 +101,13 @@ class AssignmentServiceIntegrationTests {
         assertThat(updatedAsset.getCurrentUser().getId())
                 .isEqualTo(savedEmployee.getId());
     }
+
+
     @Test
     void createAssignmentToNonEmployeeThrowsException() {
+
+        Authentication authentication =
+                createManagerAuthentication("assignment.actor.002@example.com");
 
         User manager = new User();
         manager.setName("Assignment Test Manager");
@@ -117,14 +132,21 @@ class AssignmentServiceIntegrationTests {
                 );
 
         assertThatThrownBy(
-                () -> assignmentService.createAssignment(request)
+                () -> assignmentService.createAssignment(
+                        request,
+                        authentication
+                )
         )
                 .isInstanceOf(AssignmentNotAllowedException.class)
                 .hasMessage("Assets can only be assigned to employees");
     }
 
+
     @Test
     void createAssignmentForUnavailableAssetThrowsException() {
+
+        Authentication authentication =
+                createManagerAuthentication("assignment.actor.003@example.com");
 
         User employee = new User();
         employee.setName("Unavailable Asset Test Employee");
@@ -149,13 +171,21 @@ class AssignmentServiceIntegrationTests {
                 );
 
         assertThatThrownBy(
-                () -> assignmentService.createAssignment(request)
+                () -> assignmentService.createAssignment(
+                        request,
+                        authentication
+                )
         )
                 .isInstanceOf(AssignmentNotAllowedException.class)
                 .hasMessage("Asset is not available for assignment");
     }
+
+
     @Test
     void returnAssignmentMakesAssetAvailableAgain() {
+
+        Authentication authentication =
+                createManagerAuthentication("assignment.actor.004@example.com");
 
         User employee = new User();
         employee.setName("Return Test Employee");
@@ -178,12 +208,14 @@ class AssignmentServiceIntegrationTests {
                         new CreateAssignmentRequest(
                                 savedAsset.getId(),
                                 savedEmployee.getId()
-                        )
+                        ),
+                        authentication
                 );
 
         AssignmentResponse returnedAssignment =
                 assignmentService.returnAssignment(
-                        createdAssignment.id()
+                        createdAssignment.id(),
+                        authentication
                 );
 
         assertThat(returnedAssignment.returnedAt()).isNotNull();
@@ -198,8 +230,13 @@ class AssignmentServiceIntegrationTests {
         assertThat(updatedAsset.getCurrentUser())
                 .isNull();
     }
+
+
     @Test
     void createAssignmentWhenActiveAssignmentAlreadyExistsThrowsException() {
+
+        Authentication authentication =
+                createManagerAuthentication("assignment.actor.005@example.com");
 
         User employee = new User();
         employee.setName("Active Assignment Test Employee");
@@ -231,11 +268,15 @@ class AssignmentServiceIntegrationTests {
                 );
 
         assertThatThrownBy(
-                () -> assignmentService.createAssignment(request)
+                () -> assignmentService.createAssignment(
+                        request,
+                        authentication
+                )
         )
                 .isInstanceOf(AssignmentNotAllowedException.class)
                 .hasMessage("Asset already has an active assignment");
     }
+
 
     @Test
     void databasePreventsTwoActiveAssignmentsForSameAsset() {
@@ -268,8 +309,34 @@ class AssignmentServiceIntegrationTests {
         secondAssignment.setUser(savedEmployee);
         secondAssignment.setAssignedAt(Instant.now());
 
-        assertThatThrownBy(() -> assignmentRepository.saveAndFlush(secondAssignment))
+        assertThatThrownBy(
+                () -> assignmentRepository.saveAndFlush(secondAssignment)
+        )
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
+
+    private Authentication createManagerAuthentication(String email) {
+
+        User manager = new User();
+        manager.setName("Assignment Test Actor");
+        manager.setEmail(email);
+        manager.setPasswordHash("test-password-hash");
+        manager.setRole(Role.MANAGER);
+
+        User savedManager = userRepository.saveAndFlush(manager);
+
+        return authenticationFor(savedManager);
+    }
+
+
+    private Authentication authenticationFor(User user) {
+
+        Authentication authentication = mock(Authentication.class);
+
+        when(authentication.getName())
+                .thenReturn(user.getEmail());
+
+        return authentication;
+    }
 }

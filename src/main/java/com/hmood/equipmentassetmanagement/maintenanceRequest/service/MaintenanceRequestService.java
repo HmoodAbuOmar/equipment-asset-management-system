@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 
 import com.hmood.equipmentassetmanagement.asset.model.AssetStatus;
+import com.hmood.equipmentassetmanagement.assetHistory.model.AssetHistoryActionType;
+import com.hmood.equipmentassetmanagement.assetHistory.service.AssetHistoryService;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class MaintenanceRequestService {
     private final AssetRepository assetRepository;
     private final UserRepository userRepository;
     private final MaintenanceRequestMapper maintenanceRequestMapper;
+    private final AssetHistoryService assetHistoryService;
 
     @Transactional
     public MaintenanceRequestResponse createMaintenanceRequest(CreateMaintenanceRequest request, Authentication authentication) {
@@ -61,6 +64,13 @@ public class MaintenanceRequestService {
 
         MaintenanceRequest savedRequest = maintenanceRequestRepository.save(maintenanceRequest);
 
+        assetHistoryService.log(
+                asset,
+                currentUser,
+                AssetHistoryActionType.MAINTENANCE_REPORTED,
+                "Maintenance issue reported"
+        );
+
         return maintenanceRequestMapper.toResponse(savedRequest);
     }
 
@@ -84,11 +94,22 @@ public class MaintenanceRequestService {
 
         MaintenanceRequest savedRequest = maintenanceRequestRepository.save(maintenanceRequest);
 
+        assetHistoryService.log(
+                maintenanceRequest.getAsset(),
+                currentUser,
+                AssetHistoryActionType.MAINTENANCE_STARTED,
+                "Maintenance started"
+        );
+
         return maintenanceRequestMapper.toResponse(savedRequest);
     }
 
     @Transactional
-    public MaintenanceRequestResponse resolveMaintenanceRequest(Long id, ResolveMaintenanceRequest request) {
+    public MaintenanceRequestResponse resolveMaintenanceRequest(Long id, ResolveMaintenanceRequest request,Authentication authentication) {
+
+        String email = authentication.getName().trim().toLowerCase();
+
+        User currentUser = userRepository.findByEmailIgnoreCase(email).orElseThrow();
 
         MaintenanceRequest maintenanceRequest = maintenanceRequestRepository.findById(id).orElseThrow();
 
@@ -109,6 +130,13 @@ public class MaintenanceRequestService {
         }
 
         MaintenanceRequest savedRequest = maintenanceRequestRepository.save(maintenanceRequest);
+
+        assetHistoryService.log(
+                asset,
+                currentUser,
+                AssetHistoryActionType.MAINTENANCE_RESOLVED,
+                "Maintenance resolved"
+        );
 
         return maintenanceRequestMapper.toResponse(savedRequest);
     }

@@ -37,3 +37,7 @@ build/
 
 ### Environment variables ###
 .env
+
+### Codex ###
+.codex/
+frontend/src/assets/login-reference.png

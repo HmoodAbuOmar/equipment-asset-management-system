@@ -1,0 +1,78 @@
+.recent-assets {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.dashboard-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-section-header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #111827;
+}
+
+.dashboard-section-header button {
+    border: none;
+    background: transparent;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.recent-assets-table-wrapper {
+    overflow-x: auto;
+}
+
+.recent-assets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-assets-table th,
+.recent-assets-table td {
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+}
+
+.recent-assets-table th {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.recent-assets-table td {
+    color: #374151;
+}
+
+.asset-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.asset-status.available {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.asset-status.assigned {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.asset-status.under_maintenance {
+    background: #fef3c7;
+    color: #b45309;
+}

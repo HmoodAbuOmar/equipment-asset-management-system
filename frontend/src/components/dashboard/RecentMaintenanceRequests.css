@@ -1,0 +1,70 @@
+.recent-maintenance {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.maintenance-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.maintenance-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.maintenance-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.maintenance-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.maintenance-info strong {
+    font-size: 13px;
+    color: #111827;
+}
+
+.maintenance-info span {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.maintenance-status {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.maintenance-status.open {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.maintenance-status.in_progress {
+    background: #fef3c7;
+    color: #b45309;
+}
+.maintenance-status.resolved {
+    background: #dcfce7;
+    color: #15803d;
+}

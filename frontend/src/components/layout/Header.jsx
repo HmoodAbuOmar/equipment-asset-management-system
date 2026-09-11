@@ -1,12 +1,12 @@
 import {Bell, ChevronDown} from 'lucide-react'
 import './Header.css'
 
-function Header() {
+function Header({title = 'Dashboard', showUserActions = true, children}) {
     return (
         <header className="app-header">
-            <h1>Dashboard</h1>
+            <h1>{title}</h1>
 
-            <div className="header-actions">
+            {showUserActions && <div className="header-actions">
                 <button className="notification-button" type="button">
                     <Bell size={20}/>
                 </button>
@@ -21,7 +21,8 @@ function Header() {
 
                     <ChevronDown size={18}/>
                 </div>
-            </div>
+            </div>}
+            {children}
         </header>
     )
 }

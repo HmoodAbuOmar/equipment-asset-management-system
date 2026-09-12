@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+public interface AssignmentRepository extends JpaRepository<Assignment, Long>, JpaSpecificationExecutor<Assignment> {
 
     boolean existsByAsset_IdAndReturnedAtIsNull(Long assetId);
 
@@ -20,4 +23,8 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     @EntityGraph(attributePaths = {"asset", "user"})
     Page<Assignment> findAll(Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"asset", "user"})
+    Page<Assignment> findAll(@Nullable Specification<Assignment> specification, Pageable pageable);
 }

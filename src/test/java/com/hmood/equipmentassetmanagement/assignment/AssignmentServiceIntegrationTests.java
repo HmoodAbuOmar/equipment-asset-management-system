@@ -8,6 +8,7 @@ import com.hmood.equipmentassetmanagement.assignment.dto.AssignmentResponse;
 import com.hmood.equipmentassetmanagement.assignment.dto.CreateAssignmentRequest;
 import com.hmood.equipmentassetmanagement.assignment.exception.AssignmentNotAllowedException;
 import com.hmood.equipmentassetmanagement.assignment.model.Assignment;
+import com.hmood.equipmentassetmanagement.assignment.model.AssignmentStatus;
 import com.hmood.equipmentassetmanagement.assignment.repository.AssignmentRepository;
 import com.hmood.equipmentassetmanagement.assignment.service.AssignmentService;
 import com.hmood.equipmentassetmanagement.user.model.Role;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -313,6 +315,52 @@ class AssignmentServiceIntegrationTests {
                 () -> assignmentRepository.saveAndFlush(secondAssignment)
         )
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void getAssignmentsFiltersBySearchAndStatusBeforePaginating() {
+
+        User employee = new User();
+        employee.setName("Filter Test Employee");
+        employee.setEmail("filter.assignment.employee@example.com");
+        employee.setPasswordHash("test-password-hash");
+        employee.setRole(Role.EMPLOYEE);
+        User savedEmployee = userRepository.saveAndFlush(employee);
+
+        Asset activeAsset = new Asset();
+        activeAsset.setName("Filter Active Laptop");
+        activeAsset.setCategory("Laptop");
+        activeAsset.setSerialNumber("FILTER-ACTIVE-001");
+        activeAsset.setStatus(AssetStatus.ASSIGNED);
+        Asset savedActiveAsset = assetRepository.saveAndFlush(activeAsset);
+
+        Assignment activeAssignment = new Assignment();
+        activeAssignment.setAsset(savedActiveAsset);
+        activeAssignment.setUser(savedEmployee);
+        activeAssignment.setAssignedAt(Instant.now());
+        assignmentRepository.saveAndFlush(activeAssignment);
+
+        Asset returnedAsset = new Asset();
+        returnedAsset.setName("Filter Returned Monitor");
+        returnedAsset.setCategory("Monitor");
+        returnedAsset.setSerialNumber("FILTER-RETURNED-001");
+        returnedAsset.setStatus(AssetStatus.AVAILABLE);
+        Asset savedReturnedAsset = assetRepository.saveAndFlush(returnedAsset);
+
+        Assignment returnedAssignment = new Assignment();
+        returnedAssignment.setAsset(savedReturnedAsset);
+        returnedAssignment.setUser(savedEmployee);
+        returnedAssignment.setAssignedAt(Instant.now().minusSeconds(60));
+        returnedAssignment.setReturnedAt(Instant.now());
+        assignmentRepository.saveAndFlush(returnedAssignment);
+
+        var activeResults = assignmentService.getAssignments("laptop", AssignmentStatus.ACTIVE, PageRequest.of(0, 1));
+        var returnedResults = assignmentService.getAssignments("filter test employee", AssignmentStatus.RETURNED, PageRequest.of(0, 8));
+
+        assertThat(activeResults.getTotalElements()).isEqualTo(1);
+        assertThat(activeResults.getContent()).extracting(AssignmentResponse::assetSerialNumber).containsExactly("FILTER-ACTIVE-001");
+        assertThat(returnedResults.getTotalElements()).isEqualTo(1);
+        assertThat(returnedResults.getContent()).extracting(AssignmentResponse::assetName).containsExactly("Filter Returned Monitor");
     }
 
 

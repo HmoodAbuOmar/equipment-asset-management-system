@@ -3,9 +3,11 @@ package com.hmood.equipmentassetmanagement.assignment.controller;
 import com.hmood.equipmentassetmanagement.assignment.dto.AssignmentResponse;
 import com.hmood.equipmentassetmanagement.assignment.dto.CreateAssignmentRequest;
 import com.hmood.equipmentassetmanagement.assignment.service.AssignmentService;
+import com.hmood.equipmentassetmanagement.assignment.model.AssignmentStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,11 +45,13 @@ public class AssignmentController {
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<AssignmentResponse>> getAssignments(@PageableDefault(size = 20, sort = "assignedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<PagedModel<AssignmentResponse>> getAssignments(@RequestParam(required = false) String search,
+                                                                          @RequestParam(required = false) AssignmentStatus status,
+                                                                          @PageableDefault(size = 8, sort = "assignedAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<AssignmentResponse> response = assignmentService.getAssignments(pageable);
+        Page<AssignmentResponse> response = assignmentService.getAssignments(search, status, pageable);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new PagedModel<>(response));
     }
 
 }

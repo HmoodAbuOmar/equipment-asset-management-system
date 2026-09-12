@@ -3,6 +3,7 @@ import {Navigate, Route, Routes} from 'react-router-dom'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage  from './pages/DashboardPage.jsx'
 import AssetsPage from './pages/AssetsPage.jsx'
+import AssignmentsPage from './pages/AssignmentsPage.jsx'
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
             element={
                 <ProtectedRoute>
                     <AssetsPage/>
+                </ProtectedRoute>
+            }
+        />
+        <Route
+            path="/assignments"
+            element={
+                <ProtectedRoute>
+                    <AssignmentsPage/>
                 </ProtectedRoute>
             }
         />

@@ -6,6 +6,7 @@ public record AssignmentResponse(
         Long id,
         Long assetId,
         String assetName,
+        String assetSerialNumber,
         Long userId,
         String userName,
         Instant assignedAt,

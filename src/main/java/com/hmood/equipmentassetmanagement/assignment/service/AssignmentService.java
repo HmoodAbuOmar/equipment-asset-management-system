@@ -10,7 +10,9 @@ import com.hmood.equipmentassetmanagement.assignment.exception.AssignmentNotAllo
 import com.hmood.equipmentassetmanagement.assignment.exception.AssignmentNotFoundException;
 import com.hmood.equipmentassetmanagement.assignment.mapper.AssignmentMapper;
 import com.hmood.equipmentassetmanagement.assignment.model.Assignment;
+import com.hmood.equipmentassetmanagement.assignment.model.AssignmentStatus;
 import com.hmood.equipmentassetmanagement.assignment.repository.AssignmentRepository;
+import com.hmood.equipmentassetmanagement.assignment.specification.AssignmentSpecifications;
 import com.hmood.equipmentassetmanagement.user.exception.UserNotFoundException;
 import com.hmood.equipmentassetmanagement.user.model.Role;
 import com.hmood.equipmentassetmanagement.user.model.User;
@@ -104,9 +106,9 @@ public class AssignmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AssignmentResponse> getAssignments(Pageable pageable) {
+    public Page<AssignmentResponse> getAssignments(String search, AssignmentStatus status, Pageable pageable) {
 
-        return assignmentRepository.findAll(pageable).map(assignmentMapper::toResponse);
+        return assignmentRepository.findAll(AssignmentSpecifications.withFilters(search, status), pageable).map(assignmentMapper::toResponse);
     }
 
     @Transactional(readOnly = true)

@@ -12,6 +12,7 @@ public class AssignmentMapper {
                 assignment.getId(),
                 assignment.getAsset().getId(),
                 assignment.getAsset().getName(),
+                assignment.getAsset().getSerialNumber(),
                 assignment.getUser().getId(),
                 assignment.getUser().getName(),
                 assignment.getAssignedAt(),

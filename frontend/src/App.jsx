@@ -5,6 +5,7 @@ import DashboardPage  from './pages/DashboardPage.jsx'
 import AssetsPage from './pages/AssetsPage.jsx'
 import AssignmentsPage from './pages/AssignmentsPage.jsx'
 import MaintenanceRequestsPage from './pages/MaintenanceRequestsPage.jsx'
+import UsersPage from './pages/UsersPage.jsx'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             }
         />
         <Route path="/maintenance" element={<ProtectedRoute><MaintenanceRequestsPage/></ProtectedRoute>}/>
+        <Route path="/users" element={<ProtectedRoute><UsersPage/></ProtectedRoute>}/>
         <Route path="/" element={<Navigate to="/login" replace/>}/>
       </Routes>
   )

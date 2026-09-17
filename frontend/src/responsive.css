@@ -1,0 +1,137 @@
+/* Shared responsive rules are loaded after page styles. Keep table minimum
+   widths inside their own scroll regions, never on the page or main content. */
+:is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) > :is(.dashboard-main, .assets-main, .assignments-main, .maintenance-main, .users-main) {
+    min-width: 0;
+    padding-bottom: 110px;
+}
+
+:is(.assets-search, .assignments-search, .stat-card-content, .maintenance-info,
+    .header-actions, .header-user, .user-info) {
+    min-width: 0;
+}
+
+:is(.assets-table-scroll, .assignments-table-scroll, .maintenance-table-scroll,
+    .users-table-scroll, .recent-assets-table-wrapper) {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+}
+
+/* Bound unusually long names, serials, emails and IDs without hiding data. */
+:is(.assets-table, .assignments-table, .maintenance-table, .users-table, .recent-assets-table) :is(td, th) {
+    max-width: 320px;
+    overflow-wrap: anywhere;
+}
+
+:is(.assets-pagination, .assignments-pagination, .maintenance-pagination, .users-pagination,
+    .assets-pagination nav, .assignments-pagination nav, .maintenance-pagination nav,
+    .users-toolbar, .maintenance-toolbar,
+    .assets-dialog-footer, .assignments-dialog-footer, .maintenance-dialog-footer, .users-dialog-footer) {
+    flex-wrap: wrap;
+}
+
+:is(.assets-filters, .assignments-filters) > :is(div, input, select, button) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:is(.assets-dialog, .assignments-dialog, .maintenance-dialog, .users-dialog) {
+    overscroll-behavior: contain;
+}
+
+:is(.assets-dialog-heading, .assignments-dialog-heading, .maintenance-dialog-heading, .users-dialog-heading) > button {
+    flex-shrink: 0;
+}
+
+:is(.assets-dialog, .assignments-dialog, .maintenance-dialog, .users-dialog) :is(input, select, textarea) {
+    min-width: 0;
+}
+
+.users-toolbar label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.users-toolbar select {
+    min-width: 0;
+    margin-left: 0;
+}
+
+@media (max-width: 1023px) {
+    :is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) {
+        flex-direction: column;
+    }
+
+    :is(.assets-page, .assignments-page, .maintenance-page, .users-page) > :is(.dashboard-main, .assets-main, .assignments-main, .maintenance-main, .users-main) {
+        padding-inline: 20px;
+    }
+
+    .dashboard-main {
+        padding: 24px 20px 110px;
+    }
+}
+
+@media (max-width: 767px) {
+    :is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) > :is(.dashboard-main, .assets-main, .assignments-main, .maintenance-main, .users-main) {
+        padding-inline: 16px;
+    }
+
+    :is(.assets-filters, .assignments-filters) > :is(div, input, select, button) {
+        flex: 1 1 160px;
+    }
+
+    :is(.assets-filters .assets-search, .assignments-filters .assignments-search) {
+        flex-basis: 100%;
+    }
+
+    :is(.assets-page, .assignments-page, .maintenance-page, .users-page) .app-header {
+        gap: 12px;
+        padding-block: 20px;
+    }
+
+    /* Comfortable touch targets; explicit widths in icon buttons can still grow. */
+    :is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    :is(.assets-page, .assignments-page, .maintenance-page, .users-page, .login-page) :is(input, select, textarea) {
+        font-size: 16px;
+    }
+
+    :is(.assets-filters, .assignments-filters) :is(input, select) {
+        min-height: 44px;
+        min-width: 0;
+    }
+
+    :is(.assets-search, .assignments-search) svg {
+        top: 13px;
+    }
+
+    :is(.assets-pagination, .assignments-pagination) {
+        justify-content: flex-start;
+        padding: 16px 12px;
+    }
+
+    :is(.assets-pagination, .assignments-pagination) nav {
+        gap: 4px;
+    }
+
+    :is(.assets-page .assets-pagination, .assignments-pagination) button {
+        min-width: 44px;
+    }
+
+    .login-page .form-group input { font-size: 16px; }
+
+    :is(.assets-dialog, .assignments-dialog, .maintenance-dialog, .users-dialog) {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 374px) {
+    :is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) > :is(.dashboard-main, .assets-main, .assignments-main, .maintenance-main, .users-main) {
+        padding-inline: 12px;
+    }
+}

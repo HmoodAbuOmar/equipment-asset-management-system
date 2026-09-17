@@ -7,7 +7,7 @@ function Header({title = 'Dashboard', showUserActions = true, children}) {
             <h1>{title}</h1>
 
             {showUserActions && <div className="header-actions">
-                <button className="notification-button" type="button">
+                <button className="notification-button" type="button" aria-label="Notifications">
                     <Bell size={20}/>
                 </button>
 

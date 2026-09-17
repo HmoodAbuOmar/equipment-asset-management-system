@@ -1,5 +1,6 @@
 .sidebar {
     width: 250px;
+    flex-shrink: 0;
     min-height: 100vh;
     background: #0f1d36;
     border-right: 1px solid #1e2f4d;
@@ -87,4 +88,58 @@
 
 .sidebar-logout:hover {
     background: #172846;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-toggle {
+    display: none;
+}
+
+.sidebar :is(a, button):focus-visible {
+    outline: 2px solid #93b9ff;
+    outline-offset: 2px;
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .sidebar { width: 220px; }
+}
+
+@media (max-width: 1023px) {
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        padding: 12px 16px;
+    }
+
+    .sidebar-brand {
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-left: auto;
+        width: 44px;
+        height: 44px;
+        border: 1px solid #263650;
+        border-radius: 8px;
+        background: #172846;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar-menu { display: none; }
+    .sidebar-menu.is-expanded { display: flex; }
+    .sidebar-nav { margin-top: 16px; }
+    .sidebar-link { min-height: 44px; }
+    .sidebar-logout { margin-top: 12px; align-self: flex-start; min-height: 44px; }
 }

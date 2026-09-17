@@ -63,3 +63,5 @@
     font-size: 11px;
     color: #98a2b3;
 }
+
+.stat-card { min-width: 0; }

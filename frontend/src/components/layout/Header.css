@@ -3,6 +3,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .app-header h1 {
@@ -68,4 +70,18 @@
     margin-top: 2px;
     font-size: 12px;
     color: #6b7280;
+}
+
+.app-header > h1 {
+    min-width: 0;
+}
+
+.header-actions { flex-wrap: wrap; }
+.header-user { flex: 1; }
+.user-avatar, .header-user > svg, .notification-button { flex-shrink: 0; }
+
+@media (max-width: 767px) {
+    .app-header { margin-bottom: 24px; }
+    .app-header h1 { font-size: 26px; }
+    .header-actions { gap: 12px; }
 }

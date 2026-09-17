@@ -8,7 +8,7 @@ function RecentAssets({assets, userNames}) {
                 <button type="button">View All Assets</button>
             </div>
 
-            <div className="recent-assets-table-wrapper">
+            <div className="recent-assets-table-wrapper" role="region" aria-label="Recent assets, scroll horizontally on smaller screens" tabIndex={0}>
                 <table className="recent-assets-table">
                     <thead>
                     <tr>

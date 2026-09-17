@@ -7,8 +7,6 @@
 
 .maintenance-page .sidebar { flex-shrink: 0; }
 .maintenance-main { flex: 1; min-width: 0; padding: 0 24px 24px; }
-.maintenance-page .app-header { min-height: 88px; margin-bottom: 0; padding: 24px 0; }
-.maintenance-page .app-header h1 { font-size: 24px; }
 
 .maintenance-main button {
     display: inline-flex;
@@ -36,7 +34,6 @@
 .maintenance-page button:hover:not(:disabled) { filter: brightness(.96); }
 .maintenance-page :disabled { cursor: not-allowed; opacity: .55; }
 .maintenance-page :is(button, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid #2f5ee0; outline-offset: 2px; }
-.maintenance-panel { overflow: hidden; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; }
 .maintenance-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 12px; }
 .maintenance-toolbar p { margin: 0; color: #6b7280; font-size: 14px; }
 .maintenance-message { margin: 0; padding: 16px 12px; font-size: 14px; line-height: 1.5; }
@@ -90,6 +87,5 @@
 
 @media (max-width: 700px) {
     .maintenance-main { padding: 0 16px 20px; }
-    .maintenance-page .app-header { flex-wrap: wrap; gap: 12px; padding: 20px 0; }
     .maintenance-toolbar { align-items: flex-start; }
 }

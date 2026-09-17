@@ -1,0 +1,148 @@
+/* Shared visual treatment; responsive sizing remains in responsive.css. */
+:is(.assets-panel, .assignments-panel, .maintenance-panel, .users-panel, .recent-assets, .recent-maintenance) {
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+:is(.assets-filters, .assignments-filters, .maintenance-toolbar, .users-toolbar) {
+    padding: 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+:is(.assets-table, .assignments-table, .maintenance-table, .users-table, .recent-assets-table) :is(th, td) {
+    padding: 12px 16px;
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+:is(.assets-table, .assignments-table, .maintenance-table, .users-table, .recent-assets-table) thead th {
+    background: #f9fafb;
+    color: #4b5563;
+}
+
+:is(.assets-table, .assignments-table, .maintenance-table, .users-table, .recent-assets-table) tbody tr:focus-within {
+    background: #eff6ff;
+}
+
+:is(.assets-table, .assignments-table, .maintenance-table, .users-table, .recent-assets-table) tbody tr:hover {
+    background: #f8fafc;
+}
+
+:is(.assets-status, .assignments-status, .maintenance-status, .asset-status) {
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 4px 8px;
+}
+
+:is(.assets-pagination, .assignments-pagination, .maintenance-pagination, .users-pagination, .stat-card-content) {
+    font-variant-numeric: tabular-nums;
+}
+
+:is(.assets-pagination, .assignments-pagination) button[aria-current="page"] {
+    opacity: 1;
+    font-weight: 700;
+}
+
+:is(.assets-add-button, .assignments-add-button, .users-primary, .maintenance-primary) {
+    min-height: 40px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+:is(.assets-dialog-footer, .assignments-dialog-footer, .maintenance-dialog-footer, .users-dialog-footer) {
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+:is(.assets-dialog, .assignments-dialog, .maintenance-dialog, .users-dialog) :is(input, select, button) {
+    min-height: 40px;
+}
+
+:is(.assets-filters, .assignments-filters) :is(input, select, button) {
+    min-height: 40px;
+}
+
+:is(.assets-search, .assignments-search) svg {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+:is(.assets-dialog-heading, .assignments-dialog-heading, .maintenance-dialog-heading, .users-dialog-heading) button {
+    min-width: 40px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+:is(.assets-feedback, .assignments-feedback, .maintenance-message, .users-message) {
+    padding: 16px;
+    font-size: 14px;
+}
+
+:is(.assets-field-error, .assignments-field-error, .maintenance-field-error, .users-field-error) {
+    margin-block: 6px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ui-loading, .dashboard-state {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ui-loading::before, .dashboard-state::before {
+    content: '';
+    flex: 0 0 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2f5ee0;
+}
+
+.dashboard-state {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 14px;
+}
+
+.ui-empty, .dashboard-empty, .recent-assets-table .dashboard-empty {
+    margin: 0;
+    padding: 28px 16px;
+    color: #667085;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Inset outlines stay visible inside clipped table and card containers. */
+:is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page, .chatbot-panel) :is(button, input, select, textarea, [tabindex]):focus-visible,
+.chatbot-launcher:focus-visible {
+    outline: 2px solid #2f5ee0;
+    outline-offset: 2px;
+}
+
+:is(.assets-page, .assignments-page, .maintenance-page, .users-page, .dashboard-page) :is(.assets-table-scroll, .assignments-table-scroll, .maintenance-table-scroll, .users-table-scroll, .recent-assets-table-wrapper):focus-visible {
+    outline: 2px solid #2f5ee0;
+    outline-offset: -2px;
+}
+
+@media (hover: hover) {
+    :is(.assets-main, .assignments-main, .maintenance-main, .users-main, .users-dialog, .dashboard-section-header) button:not(:disabled):hover {
+        filter: brightness(.96);
+    }
+
+    .assets-row-actions button:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+}
+
+.sidebar :is(a, button):focus-visible {
+    outline-color: #93b9ff;
+}

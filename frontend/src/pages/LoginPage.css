@@ -161,6 +161,10 @@
 
 .login-error {
     margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    background: #fef2f2;
     color: #b91c1c;
     font-size: 14px;
     line-height: 1.5;

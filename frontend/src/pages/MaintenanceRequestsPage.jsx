@@ -106,11 +106,11 @@ export default function MaintenanceRequestsPage() {
                     <p>Track reported issues and maintenance progress.</p>
                     <button className="maintenance-refresh" type="button" disabled={loading || startingId !== null} onClick={() => setQuery({...query})}><RefreshCw size={16} aria-hidden="true"/> Refresh</button>
                 </div>
-                {loading && <p className="maintenance-message" role="status">Loading maintenance requests…</p>}
+                {loading && <p className="maintenance-message ui-loading" role="status">Loading maintenance requests…</p>}
                 {error && <div className="maintenance-message maintenance-error" role="alert">{maintenanceErrorMessage(error)} <button type="button" onClick={() => setQuery({...query})}>Retry</button></div>}
                 {lookup.failed && <p className="maintenance-message" role="status">Some names could not be loaded. IDs are shown instead. Use Refresh to retry.</p>}
-                {data && !requests.length && <p className="maintenance-message" role="status">No maintenance requests yet.</p>}
-                <div className="maintenance-table-scroll" role="region" aria-label="Maintenance table, scroll horizontally on smaller screens" tabIndex={0}>
+                {data && !requests.length && <p className="maintenance-message ui-empty" role="status">No maintenance requests yet.</p>}
+                <div className="maintenance-table-scroll" aria-busy={loading} role="region" aria-label="Maintenance table, scroll horizontally on smaller screens" tabIndex={0}>
                     <table className="maintenance-table">
                         <thead><tr>{['Request', 'Asset', 'Issue Description', 'Reported By', 'IT Handler', 'Request Date', 'Status', ...(identity.manage ? ['Actions'] : [])].map((column) => <th key={column} scope="col">{column}</th>)}</tr></thead>
                         <tbody>{requests.map((request) => <tr key={request.id}>

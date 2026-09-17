@@ -73,6 +73,8 @@ function DashboardPage() {
         loadDashboard()
     }, [navigate])
 
+    const loading = totalAssets === null && !error
+
     return (<div className="dashboard-page">
         <Sidebar/>
 
@@ -81,7 +83,8 @@ function DashboardPage() {
             {error && (<p className="dashboard-error" role="alert">
                     {error}
                 </p>)}
-            <section className="dashboard-stats">
+            {loading && <p className="dashboard-state" role="status">Loading dashboard data...</p>}
+            <section className="dashboard-stats" aria-label="Asset statistics" aria-busy={loading}>
                 <StatCard
                     icon={<Package size={21}/>}
                     title="Total Assets"
@@ -125,10 +128,14 @@ function DashboardPage() {
 
             <section className="dashboard-content">
                 <RecentAssets
+                    loading={loading}
+                    unavailable={Boolean(error)}
                     assets={recentAssets}
                     userNames={userNames}
                 />
                 <RecentMaintenanceRequests
+                    loading={loading}
+                    unavailable={Boolean(error)}
                     requests={recentMaintenanceRequests}
                     assetNames={assetNames}
                     userNames={userNames}

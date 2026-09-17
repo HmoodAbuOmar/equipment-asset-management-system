@@ -67,7 +67,7 @@ function ChatbotPanel() {
     return (
         <>
             {isOpen ? (
-                <aside className="chatbot-panel">
+                <aside className="chatbot-panel" aria-label="AI Assistant">
                     <div className="chatbot-header">
                         <div className="chatbot-header__identity">
                             <div className="chatbot-avatar">
@@ -94,7 +94,7 @@ function ChatbotPanel() {
                         </button>
                     </div>
 
-                    <div className="chatbot-messages">
+                    <div className="chatbot-messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
                         {messages.map((item, index) => (
                             <div
                                 key={index}
@@ -116,7 +116,7 @@ function ChatbotPanel() {
                                     AI Assistant
                                 </span>
 
-                                <div className="chatbot-thinking">
+                                <div className="chatbot-thinking" role="status" aria-label="AI Assistant is responding">
                                     <span />
                                     <span />
                                     <span />
@@ -135,7 +135,8 @@ function ChatbotPanel() {
                             type="text"
                             value={message}
                             onChange={(event) => setMessage(event.target.value)}
-                            placeholder="Ask..."
+                            placeholder="Ask a question..."
+                            aria-label="Message to AI Assistant"
                             disabled={loading}
                         />
 

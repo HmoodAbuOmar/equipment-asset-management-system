@@ -57,7 +57,7 @@ function LoginPage() {
                         <p>Sign in to your account to continue</p>
                     </header>
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} aria-busy={isLoading}>
                         <div className="form-group">
                             <label htmlFor="email">Email</label>
 
@@ -117,6 +117,7 @@ function LoginPage() {
                                     type="button"
                                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                                     aria-controls="password"
+                                    aria-pressed={showPassword}
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     <svg

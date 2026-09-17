@@ -68,3 +68,10 @@
     background: #dcfce7;
     color: #15803d;
 }
+
+.maintenance-item { flex-wrap: wrap; }
+.maintenance-info { flex-basis: 120px; }
+
+@media (max-width: 767px) {
+    .maintenance-item { padding: 16px; }
+}

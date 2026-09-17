@@ -1,13 +1,27 @@
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  overflow-wrap: anywhere;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+  max-width: 100%;
+}
+
+img, video, canvas {
+  max-width: 100%;
+}
+
+button svg, a svg {
+  flex-shrink: 0;
 }

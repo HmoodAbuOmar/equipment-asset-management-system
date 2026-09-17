@@ -246,3 +246,17 @@
         width: min(100%, 320px);
     }
 }
+
+/* Short laptop and landscape viewports should not inherit the tall hero spacing. */
+@media (min-width: 761px) and (max-height: 850px) {
+    .login-card { min-height: 0; }
+    .login-content { padding-block: 40px 32px; }
+    .login-footer { padding-top: 32px; }
+}
+
+@media (max-width: 374px) {
+    .login-page { padding: 12px; }
+    .login-content { padding: 28px 16px 24px; }
+    .login-heading p { margin-bottom: 24px; }
+    .login-footer { padding-top: 28px; }
+}

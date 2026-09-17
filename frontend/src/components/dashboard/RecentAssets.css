@@ -76,3 +76,11 @@
     background: #fef3c7;
     color: #b45309;
 }
+
+.dashboard-section-header { flex-wrap: wrap; gap: 12px; }
+.recent-assets-table { min-width: 580px; }
+.recent-assets-table-wrapper:focus-visible { outline: 2px solid #2f5ee0; outline-offset: -2px; }
+
+@media (max-width: 767px) {
+    .dashboard-section-header { padding: 16px; }
+}

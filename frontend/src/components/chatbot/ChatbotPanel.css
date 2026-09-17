@@ -1,7 +1,7 @@
 .chatbot-launcher {
     position: fixed;
-    right: 28px;
-    bottom: 28px;
+    right: max(28px, env(safe-area-inset-right));
+    bottom: max(28px, env(safe-area-inset-bottom));
 
     width: 58px;
     height: 58px;
@@ -45,13 +45,13 @@
 .chatbot-panel {
     position: fixed;
 
-    right: 28px;
-    bottom: 28px;
+    right: max(28px, env(safe-area-inset-right));
+    bottom: max(28px, env(safe-area-inset-bottom));
 
-    width: 370px;
+    width: min(370px, calc(100% - 56px));
     height: 500px;
 
-    max-height: calc(100vh - 56px);
+    max-height: calc(100dvh - 56px - env(safe-area-inset-bottom));
 
     display: flex;
     flex-direction: column;
@@ -389,18 +389,29 @@
 
 @media (max-width: 600px) {
     .chatbot-launcher {
-        right: 16px;
-        bottom: 16px;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom));
     }
 
     .chatbot-panel {
-        right: 12px;
-        bottom: 12px;
-        left: 12px;
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        left: max(12px, env(safe-area-inset-left));
 
         width: auto;
-        height: 70vh;
+        height: 70dvh;
 
-        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px - env(safe-area-inset-bottom));
     }
+}
+.chatbot-header, .chatbot-form { flex-shrink: 0; }
+.chatbot-header { gap: 8px; }
+.chatbot-header__identity { min-width: 0; }
+.chatbot-avatar, .chatbot-close, .chatbot-form button { flex-shrink: 0; }
+.chatbot-messages { overscroll-behavior: contain; }
+.chatbot-close { min-width: 44px; min-height: 44px; }
+
+@media (max-width: 767px) {
+    .chatbot-form input { font-size: 16px; }
+    .chatbot-form button { min-height: 44px; }
 }

@@ -2,6 +2,8 @@ import {Wrench} from 'lucide-react'
 import './RecentMaintenanceRequests.css'
 
 function RecentMaintenanceRequests({
+                                       loading = false,
+                                       unavailable = false,
                                        requests,
                                        assetNames,
                                        userNames
@@ -13,7 +15,10 @@ function RecentMaintenanceRequests({
                 <button type="button">View All</button>
             </div>
 
-            <div className="maintenance-list">
+            <div className="maintenance-list" aria-busy={loading}>
+                {requests.length === 0 && <p className="dashboard-empty">
+                    {loading ? 'Loading recent requests...' : unavailable ? 'Recent requests could not be loaded.' : 'No maintenance requests to display yet.'}
+                </p>}
                 {requests.map((request) => (
                     <div
                         className="maintenance-item"

@@ -226,7 +226,7 @@
 .chatbot-message__label {
     padding: 0 4px;
 
-    color: #94a3b8;
+    color: #64748b;
 
     font-size: 10px;
     font-weight: 600;
@@ -349,7 +349,7 @@
 }
 
 .chatbot-form input::placeholder {
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .chatbot-form input:focus {
@@ -414,4 +414,10 @@
 @media (max-width: 767px) {
     .chatbot-form input { font-size: 16px; }
     .chatbot-form button { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chatbot-panel, .chatbot-thinking span { animation: none; }
+    .chatbot-launcher { transition: none; }
+    .chatbot-launcher:hover { transform: none; }
 }

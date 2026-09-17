@@ -69,7 +69,7 @@
     }
 
     .dashboard-main {
-        padding: 24px 20px 110px;
+        padding: 0 20px 110px;
     }
 }
 
@@ -86,11 +86,6 @@
         flex-basis: 100%;
     }
 
-    :is(.assets-page, .assignments-page, .maintenance-page, .users-page) .app-header {
-        gap: 12px;
-        padding-block: 20px;
-    }
-
     /* Comfortable touch targets; explicit widths in icon buttons can still grow. */
     :is(.dashboard-page, .assets-page, .assignments-page, .maintenance-page, .users-page) button {
         min-height: 44px;
@@ -104,10 +99,6 @@
     :is(.assets-filters, .assignments-filters) :is(input, select) {
         min-height: 44px;
         min-width: 0;
-    }
-
-    :is(.assets-search, .assignments-search) svg {
-        top: 13px;
     }
 
     :is(.assets-pagination, .assignments-pagination) {

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useRef, useState} from 'react'
 import {ChevronLeft, ChevronRight, ChevronsLeft, Funnel, Plus, RotateCcw, Search} from 'lucide-react'
 import {useNavigate} from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
@@ -29,7 +29,40 @@ function AssignmentsPage() {
     const [saving, setSaving] = useState(false)
     const [returningId, setReturningId] = useState(null)
     const [feedback, setFeedback] = useState(null)
+    const dialogRef = useRef(null)
     const navigate = useNavigate()
+
+    useEffect(() => {
+        if (!dialogOpen) return
+        const dialog = dialogRef.current
+        const opener = document.activeElement
+        dialog.focus()
+        function handleKeyDown(event) {
+            if (event.key === 'Escape') {
+                event.preventDefault()
+                dialog.querySelector('[aria-label="Close"]')?.click()
+            }
+            if (event.key !== 'Tab') return
+            const controls = [...dialog.querySelectorAll('button:not(:disabled), select:not(:disabled)')]
+            const first = controls[0]
+            const last = controls.at(-1)
+            if (!first) {
+                event.preventDefault()
+                dialog.focus()
+            } else if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog || !dialog.contains(document.activeElement))) {
+                event.preventDefault()
+                last.focus()
+            } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialog || !dialog.contains(document.activeElement))) {
+                event.preventDefault()
+                first.focus()
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+            if (opener?.isConnected) opener.focus()
+        }
+    }, [dialogOpen])
     const permissions = assignmentPermissions(sessionStorage.getItem('accessToken'))
 
     const expireSession = useCallback(() => {
@@ -166,10 +199,10 @@ function AssignmentsPage() {
                     <button className="assignments-filter-button" type="submit"><Funnel size={16} aria-hidden="true"/> Filter</button>
                 </form>
 
-                {loading && <p className="assignments-feedback" role="status">Loading assignments…</p>}
+                {loading && <p className="assignments-feedback ui-loading" role="status">Loading assignments…</p>}
                 {error && <div className="assignments-feedback assignments-error" role="alert">{assignmentErrorMessage(error)}<button type="button" onClick={() => setRequest({...request})}>Retry</button></div>}
-                {data && assignments.length === 0 && <p className="assignments-feedback" role="status">{hasFilters ? 'No assignments match your search or filters.' : 'No assignments yet.'}</p>}
-                <div className="assignments-table-scroll" role="region" aria-label="Assignments table, scroll horizontally on smaller screens" tabIndex={0}>
+                {data && assignments.length === 0 && <p className="assignments-feedback ui-empty" role="status">{hasFilters ? 'No assignments match your search or filters.' : 'No assignments yet.'}</p>}
+                <div className="assignments-table-scroll" aria-busy={loading} role="region" aria-label="Assignments table, scroll horizontally on smaller screens" tabIndex={0}>
                     <table className="assignments-table">
                         <thead><tr>{['Asset Name', 'Serial Number', 'Assigned To', 'Assigned Date', 'Return Date', 'Status', 'Actions'].map((column) => <th key={column} scope="col">{column}</th>)}</tr></thead>
                         <tbody>{assignments.map((assignment) => {
@@ -189,13 +222,13 @@ function AssignmentsPage() {
                 </nav></footer>}
             </section>
 
-            {dialogOpen && <div className="assignments-dialog-backdrop" role="presentation" onMouseDown={closeDialog}><form className="assignments-dialog" aria-labelledby="assign-asset-title" onSubmit={submitAssignment} onMouseDown={(event) => event.stopPropagation()}>
+            {dialogOpen && <div className="assignments-dialog-backdrop" role="presentation" onMouseDown={closeDialog}><form ref={dialogRef} className="assignments-dialog" role="dialog" aria-modal="true" tabIndex={-1} aria-busy={saving} aria-labelledby="assign-asset-title" onSubmit={submitAssignment} onMouseDown={(event) => event.stopPropagation()}>
                 <div className="assignments-dialog-heading"><h2 id="assign-asset-title">Assign Asset</h2><button type="button" aria-label="Close" disabled={saving} onClick={closeDialog}>×</button></div>
                 <p>Select an available asset and the employee who will receive it.</p>
                 {!dialogData && !dialogError && <p className="assignments-dialog-context" role="status">Loading available assets and employees…</p>}
                 {dialogError && <div className="assignments-dialog-error" role="alert">{assignmentErrorMessage(dialogError, true)}</div>}
-                {dialogData && <><label className="assignments-dialog-field">Asset<select aria-invalid={Boolean(fieldErrors.assetId)} value={values.assetId} onChange={(event) => setValues({...values, assetId: event.target.value})}><option value="">Select an asset</option>{dialogData.assets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name} ({asset.serialNumber})</option>)}</select>{fieldErrors.assetId && <span className="assignments-field-error">{fieldErrors.assetId}</span>}</label>
-                <label className="assignments-dialog-field">Assign to<select aria-invalid={Boolean(fieldErrors.userId)} value={values.userId} onChange={(event) => setValues({...values, userId: event.target.value})}><option value="">Select an employee</option>{dialogData.users.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select>{fieldErrors.userId && <span className="assignments-field-error">{fieldErrors.userId}</span>}</label>
+                {dialogData && <><label className="assignments-dialog-field">Asset<select aria-invalid={Boolean(fieldErrors.assetId)} aria-describedby={fieldErrors.assetId ? "assignment-asset-error" : undefined} value={values.assetId} onChange={(event) => setValues({...values, assetId: event.target.value})}><option value="">Select an asset</option>{dialogData.assets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name} ({asset.serialNumber})</option>)}</select>{fieldErrors.assetId && <span id="assignment-asset-error" role="alert" className="assignments-field-error">{fieldErrors.assetId}</span>}</label>
+                <label className="assignments-dialog-field">Assign to<select aria-invalid={Boolean(fieldErrors.userId)} aria-describedby={fieldErrors.userId ? "assignment-user-error" : undefined} value={values.userId} onChange={(event) => setValues({...values, userId: event.target.value})}><option value="">Select an employee</option>{dialogData.users.map((user) => <option key={user.id} value={user.id}>{user.name}</option>)}</select>{fieldErrors.userId && <span id="assignment-user-error" role="alert" className="assignments-field-error">{fieldErrors.userId}</span>}</label>
                 {!dialogData.assets.length && <p className="assignments-dialog-context">No available assets to assign.</p>}{!dialogData.users.length && <p className="assignments-dialog-context">No employees are available.</p>}</>}
                 <div className="assignments-dialog-footer"><button type="button" disabled={saving} onClick={closeDialog}>Cancel</button><button className="assignments-save-button" type="submit" disabled={!dialogData || saving || !dialogData.assets.length || !dialogData.users.length}>{saving ? 'Assigning…' : 'Assign Asset'}</button></div>
             </form></div>}

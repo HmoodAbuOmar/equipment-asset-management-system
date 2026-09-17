@@ -145,16 +145,16 @@ function AssetsPage() {
                         {users.denied ? 'Access denied for some user names.' : 'Some user names could not be loaded.'} Assets remain available with user IDs.
                         <button type="button" onClick={() => setUserAttempt((attempt) => attempt + 1)}>Retry names</button>
                     </div>}
-                    {loading && <p className="assets-feedback" role="status">Loading assets…</p>}
+                    {loading && <p className="assets-feedback ui-loading" role="status">Loading assets…</p>}
                     {error && <div className="assets-feedback assets-error" role="alert">
                         {error.status === 403 ? 'Access denied. You do not have permission to view assets.' : 'Unable to load assets. Please try again.'}
                         <button type="button" onClick={() => setRequest({...request})}>Retry</button>
                     </div>}
-                    {data && assets.length === 0 && <p className="assets-feedback" role="status">
+                    {data && assets.length === 0 && <p className="assets-feedback ui-empty" role="status">
                         {hasFilters ? 'No assets match your search or filters.' : 'No assets yet.'}
                     </p>}
 
-                    <div className="assets-table-scroll" role="region" aria-label="Assets table, scroll horizontally on smaller screens" tabIndex={0}>
+                    <div className="assets-table-scroll" aria-busy={loading} role="region" aria-label="Assets table, scroll horizontally on smaller screens" tabIndex={0}>
                         <table className="assets-table">
                             <thead>
                             <tr>
